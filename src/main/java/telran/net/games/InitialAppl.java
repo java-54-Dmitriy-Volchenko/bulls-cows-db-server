@@ -17,6 +17,10 @@ public class InitialAppl {
 		EntityManager em = emFactory.createEntityManager();
 		Gamer gamer = em.find(Gamer.class, "gamer1");
 		System.out.println(gamer);
+		System.out.println("------------------------------------------------------");
+		
+		Game game = em.find(Game.class, "1001");
+		System.out.println(game);
 
 	}
 

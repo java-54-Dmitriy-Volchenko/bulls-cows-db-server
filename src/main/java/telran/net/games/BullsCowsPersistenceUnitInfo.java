@@ -1,5 +1,7 @@
 package telran.net.games;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -53,7 +55,7 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 	public DataSource getNonJtaDataSource() {
 		HikariDataSource ds = new HikariDataSource();
 		ds.setJdbcUrl("jdbc:postgresql://localhost/postgres");
-		ds.setPassword("l12850FG");
+		ds.setPassword("12345.com");
 		ds.setUsername("postgres");
 		ds.setDriverClassName("org.postgresql.Driver");
 		return ds;
@@ -68,6 +70,7 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 	@Override
 	public List<URL> getJarFileUrls() {
 		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -80,7 +83,10 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 	@Override
 	public List<String> getManagedClassNames() {
 		
-		return List.of("telran.net.games.Gamer", "telran.net.games.Game");
+		return List.of("telran.net.games.Gamer",
+				"telran.net.games.Game",
+				"telran.net.games.GameGamer",
+				"telran.net.games.Move");
 	}
 
 	@Override

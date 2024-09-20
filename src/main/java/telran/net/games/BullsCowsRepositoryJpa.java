@@ -80,8 +80,9 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	@Override
 	public boolean isGameFinished(long id) {
-		// TODO Auto-generated method stub
-		return false;
+		Game game = getGame(id);
+		return game.isfinished();
+		
 	}
 
 	@Override

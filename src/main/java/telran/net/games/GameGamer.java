@@ -7,7 +7,7 @@ public class GameGamer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@Column(name="is_winner", nullable = false)
-	private boolean isWinner;
+	protected boolean isWinner;
 	@ManyToOne
 	@JoinColumn(name = "game_id")
 	private Game game;

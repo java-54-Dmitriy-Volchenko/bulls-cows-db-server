@@ -1,4 +1,4 @@
-package telran.net.games.exceptions;
+	package telran.net.games.exceptions;
 
 @SuppressWarnings("serial")
 public class GamerNotFoundException extends IllegalArgumentException {

@@ -44,6 +44,7 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 			createObject(game);
 		return game.getId();
 	}
+	
 	private <T>void createObject(T obj) {
 		EntityTransaction transaction = em.getTransaction();
 		transaction.begin();
@@ -87,16 +88,23 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	@Override
 	public void setIsFinished(long gameId) {
-		// TODO Auto-generated method stub
+		EntityTransaction transaction = em.getTransaction();
+		transaction.begin();
+		Game game = getGame(gameId);
+		game.setfinished(true);
+		transaction.commit();
 
 	}
 
-	@Override
-	public void setGameGamerWinner(long gameId, String userName) {
-		// TODO Auto-generated method stub
+	
+//	@Override
+//	public void setGameGamerWinner(long gameId, String username) {
+//	  //the same as setWinner method
+//	}
 
-	}
 
+
+	
 	@Override
 	public List<Long> getGameIdsNotStarted() {
 		// TODO Auto-generated method stub
@@ -134,14 +142,52 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	@Override
 	public void setWinner(long gameId, String username) {
-		// TODO Auto-generated method stub
+	
+	EntityTransaction transaction = em.getTransaction();
+	
+	transaction.begin();
+		
+		GameGamer gameGamer = getGameGamer (gameId, username);
+		gameGamer.isWinner=true;
+	    
+	    Game game = getGame(gameId);
+	    game.setfinished(true);
+		    
+	    em.persist(gameGamer);
+	    em.persist(game);
+		
+	transaction.commit();
 
 	}
 
+	private GameGamer getGameGamer(long gameId, String username) {
+
+		    
+		  TypedQuery<GameGamer> query = em.createQuery(
+		    		
+		    "select record from GameGamer record where record.game.id = ?1 AND record.gamer.username = ?2",
+		    	GameGamer.class);
+		    	query.setParameter(1, gameId);
+		    	query.setParameter(2, username);
+		    	GameGamer gameGamer = query.getSingleResult();
+		    
+		    if (gameGamer == null) {
+		    		throw new GamerNotFoundException("No such gamer in the game");
+		    }
+		    
+		    return gameGamer;
+		
+	}
 	@Override
 	public boolean isWinner(long gameId, String username) {
-		// TODO Auto-generated method stub
-		return false;
+		
+	GameGamer gameGamer = getGameGamer(gameId, username);
+	
+	return gameGamer.isWinner ==true;
+	
+		
+		
+		
 	}
 
 }

@@ -97,18 +97,14 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 	}
 
 	
-//	@Override
-//	public void setGameGamerWinner(long gameId, String username) {
-//	  //the same as setWinner method
-//	}
 
 
 
 	
 	@Override
 	public List<Long> getGameIdsNotStarted() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return null ;
 	}
 
 	@Override
@@ -130,14 +126,24 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	@Override
 	public void createGameGamerMove(MoveDto moveDto) {
-		// TODO Auto-generated method stub
+		GameGamer gameGamer = getGameGamer(moveDto.gameId(), moveDto.username());
+		Move move = new Move(moveDto.sequence(), moveDto.bulls() , moveDto.cows(), gameGamer);
+		createObject(move);
+
 
 	}
 
 	@Override
 	public List<MoveData> getAllGameGamerMoves(long gameId, String username) {
-		// TODO Auto-generated method stub
-		return null;
+		GameGamer gameGamer = getGameGamer(gameId, username);
+		
+		 TypedQuery<MoveData> query = em.createQuery(
+		    		
+				  "select new MoveData(record.sequence, record.bulls, record.cows) from Move record where record.gameGamer = ?1",
+				    	MoveData.class);
+		 
+		return  query.setParameter(1, gameGamer).getResultList();
+	
 	}
 
 	@Override
@@ -165,7 +171,7 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 		    
 		  TypedQuery<GameGamer> query = em.createQuery(
 		    		
-		    "select record from GameGamer record where record.game.id = ?1 AND record.gamer.username = ?2",
+		    "select record from GameGamer record where record.game.id = ?1 and record.gamer.username = ?2",
 		    	GameGamer.class);
 		    	query.setParameter(1, gameId);
 		    	query.setParameter(2, username);

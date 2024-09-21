@@ -156,12 +156,9 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 		GameGamer gameGamer = getGameGamer (gameId, username);
 		gameGamer.isWinner=true;
 	    
-	    Game game = getGame(gameId);
-	    game.setfinished(true);
+	    
 		    
-	    em.persist(gameGamer);
-	    em.persist(game);
-		
+	
 	transaction.commit();
 
 	}
@@ -175,13 +172,23 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 		    	GameGamer.class);
 		    	query.setParameter(1, gameId);
 		    	query.setParameter(2, username);
-		    	GameGamer gameGamer = query.getSingleResult();
+		    	
+		    	GameGamer gameGamer = null;
+		    	
+				try {
+					gameGamer = query.getSingleResult();
+					
+				} catch (NoResultException e) {
+				
+					throw new GamerNotFoundException("No such gamer in the game");
+				}
+				catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+				return gameGamer;
+	    
 		    
-		    if (gameGamer == null) {
-		    		throw new GamerNotFoundException("No such gamer in the game");
-		    }
-		    
-		    return gameGamer;
 		
 	}
 	@Override

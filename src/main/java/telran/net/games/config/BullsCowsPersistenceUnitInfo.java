@@ -1,4 +1,4 @@
-package telran.net.games;
+package telran.net.games.config;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -47,7 +47,7 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 
 	@Override
 	public DataSource getJtaDataSource() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -55,7 +55,7 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 	public DataSource getNonJtaDataSource() {
 		HikariDataSource ds = new HikariDataSource();
 		ds.setJdbcUrl("jdbc:postgresql://localhost/postgres");
-		ds.setPassword("l12850FG");
+		ds.setPassword("12345.com");
 		ds.setUsername("postgres");
 		ds.setDriverClassName("org.postgresql.Driver");
 		return ds;
@@ -63,77 +63,77 @@ public class BullsCowsPersistenceUnitInfo implements PersistenceUnitInfo {
 
 	@Override
 	public List<String> getMappingFileNames() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<URL> getJarFileUrls() {
-		
+		// TODO Auto-generated method stub
 		
 		return null;
 	}
 
 	@Override
 	public URL getPersistenceUnitRootUrl() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<String> getManagedClassNames() {
 		
-		return List.of("telran.net.games.Gamer",
-				"telran.net.games.Game",
-				"telran.net.games.GameGamer",
-				"telran.net.games.Move");
+		return List.of("telran.net.games.entities.Gamer",
+				"telran.net.games.entities.Game",
+				"telran.net.games.entities.GameGamer",
+				"telran.net.games.entities.Move");
 	}
 
 	@Override
 	public boolean excludeUnlistedClasses() {
-		
+		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public SharedCacheMode getSharedCacheMode() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ValidationMode getValidationMode() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Properties getProperties() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getPersistenceXMLSchemaVersion() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ClassLoader getClassLoader() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void addTransformer(ClassTransformer transformer) {
-		
+		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public ClassLoader getNewTempClassLoader() {
-		
+		// TODO Auto-generated method stub
 		return null;
 	}
 

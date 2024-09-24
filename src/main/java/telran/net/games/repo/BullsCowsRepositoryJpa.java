@@ -1,4 +1,4 @@
-package telran.net.games;
+package telran.net.games.repo;
 
 import java.time.*;
 import java.util.*;
@@ -7,9 +7,17 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import jakarta.persistence.*;
 import jakarta.persistence.spi.*;
+import telran.net.games.entities.Game;
+import telran.net.games.entities.GameGamer;
+import telran.net.games.entities.Gamer;
+import telran.net.games.entities.Move;
+import telran.net.games.exceptions.GameGamerAlreadyExistsException;
+import telran.net.games.exceptions.GameGamerNotFoundException;
 import telran.net.games.exceptions.GameNotFoundException;
 import telran.net.games.exceptions.GamerAlreadyExistsdException;
 import telran.net.games.exceptions.GamerNotFoundException;
+import telran.net.games.model.MoveData;
+import telran.net.games.model.MoveDto;
 
 public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 	private EntityManager em;
@@ -44,12 +52,16 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 			createObject(game);
 		return game.getId();
 	}
-	
 	private <T>void createObject(T obj) {
 		EntityTransaction transaction = em.getTransaction();
-		transaction.begin();
-		em.persist(obj);
-		transaction.commit();
+		try {
+			transaction.begin();
+			em.persist(obj);
+			transaction.commit();
+		} catch (Exception e) {
+			transaction.rollback();
+			throw e;
+		}
 	}
 
 	@Override
@@ -83,7 +95,6 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 	public boolean isGameFinished(long id) {
 		Game game = getGame(id);
 		return game.isfinished();
-		
 	}
 
 	@Override
@@ -96,15 +107,12 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	}
 
-	
 
-
-
-	
 	@Override
 	public List<Long> getGameIdsNotStarted() {
-	
-		return null ;
+		TypedQuery<Long> query = em.createQuery(
+				"select id from Game where dateTime is null", Long.class);
+		return query.getResultList();
 	}
 
 	@Override
@@ -117,90 +125,60 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
 	@Override
 	public void createGameGamer(long gameId, String username) {
-		Game game = getGame(gameId);
-		Gamer gamer = getGamer(username);
-		GameGamer gameGamer = new GameGamer(false, game, gamer);
-		createObject(gameGamer);
+		try {
+			Game game = getGame(gameId);
+			Gamer gamer = getGamer(username);
+			GameGamer gameGamer = new GameGamer(false, game, gamer);
+			createObject(gameGamer);
+		} catch (Exception e) {
+			throw new GameGamerAlreadyExistsException(gameId, username);
+		}
 
 	}
 
 	@Override
 	public void createGameGamerMove(MoveDto moveDto) {
-		GameGamer gameGamer = getGameGamer(moveDto.gameId(), moveDto.username());
-		Move move = new Move(moveDto.sequence(), moveDto.bulls() , moveDto.cows(), gameGamer);
+		long gameId = moveDto.gameId();
+		String username = moveDto.username();
+		GameGamer gameGamer = getGameGamer(gameId, username );
+		Move move = new Move(moveDto.sequence(), moveDto.bulls(), moveDto.cows(), gameGamer);
 		createObject(move);
-
 
 	}
 
+	private GameGamer getGameGamer(Long gameId, String username) {
+		TypedQuery<GameGamer> query = em.createQuery(
+						"select gameGamer from GameGamer gameGamer"
+						+ " where game.id = ?1 and gamer.username = ?2", GameGamer.class);
+		GameGamer gameGamer = query.setParameter(1, gameId).setParameter(2, username)
+				.getSingleResultOrNull();
+		if(gameGamer == null) {
+			throw new GameGamerNotFoundException(gameId, username);
+		}
+		return gameGamer;
+	}
 	@Override
 	public List<MoveData> getAllGameGamerMoves(long gameId, String username) {
 		GameGamer gameGamer = getGameGamer(gameId, username);
-		
-		 TypedQuery<MoveData> query = em.createQuery(
-		    		
-				  "select new MoveData(record.sequence, record.bulls, record.cows) from Move record where record.gameGamer = ?1",
-				    	MoveData.class);
-		 
-		return  query.setParameter(1, gameGamer).getResultList();
-	
+		TypedQuery<MoveData> query = em.createQuery(
+				"select sequence, bulls, cows from Move where gameGamer.id = ?1", MoveData.class);
+		return query.setParameter(1, gameGamer.getId()).getResultList();
 	}
 
 	@Override
 	public void setWinner(long gameId, String username) {
-	
-	EntityTransaction transaction = em.getTransaction();
-	
-	transaction.begin();
-		
-		GameGamer gameGamer = getGameGamer (gameId, username);
-		gameGamer.isWinner=true;
-	    
-	    
-		    
-	
-	transaction.commit();
+		EntityTransaction transaction = em.getTransaction();
+		transaction.begin();
+		GameGamer gameGamer = getGameGamer(gameId, username);
+		gameGamer.setWinner(true);
+		transaction.commit();
 
 	}
 
-	private GameGamer getGameGamer(long gameId, String username) {
-
-		    
-		  TypedQuery<GameGamer> query = em.createQuery(
-		    		
-		    "select record from GameGamer record where record.game.id = ?1 and record.gamer.username = ?2",
-		    	GameGamer.class);
-		    	query.setParameter(1, gameId);
-		    	query.setParameter(2, username);
-		    	
-		    	GameGamer gameGamer = null;
-		    	
-				try {
-					gameGamer = query.getSingleResult();
-					
-				} catch (NoResultException e) {
-				
-					throw new GamerNotFoundException("No such gamer in the game");
-				}
-				catch (Exception e) {
-					
-					e.printStackTrace();
-				}
-				return gameGamer;
-	    
-		    
-		
-	}
 	@Override
 	public boolean isWinner(long gameId, String username) {
-		
-	GameGamer gameGamer = getGameGamer(gameId, username);
-	
-	return gameGamer.isWinner ==true;
-	
-		
-		
-		
+		GameGamer gameGamer = getGameGamer(gameId, username);
+		return gameGamer.isWinner();
 	}
 
 }

@@ -56,7 +56,6 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 */
 	public void registerGamer(String username, LocalDate birthDate) {
 		bcRepository.createNewGamer(username, birthDate);
-		
 	}
 	@Override
 	/**
@@ -65,15 +64,12 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 * GameNotFoundException
 	 * GameAlreadyStartedException
 	 * GamerNotFoundException
+	 * GameGamerAlreadyExists
 	 */
 	public void gamerJoinGame(long gameId, String username) {
-			
-		
 		if(bcRepository.isGameStarted(gameId)) {
 			throw new GameAlreadyStartedException(gameId);
 		}
-		
-		
 		bcRepository.createGameGamer(gameId, username);
 		
 	}
@@ -84,10 +80,7 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 */
 	public List<Long> getNotStartedGames() {
 		
-		List<Long> result = bcRepository.getGameIdsNotStarted();
-		
-		return result;
-
+		return bcRepository.getGameIdsNotStarted();
 	}
 	@Override
 	/**
@@ -101,49 +94,37 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 * GamerNotFoundException
 	 * GameNotStartedException (extends IllegalStateException)
 	 * GameFinishedException (extends IllegalStateException)
+	 * GameGamerNotFounException
 	 */
-	public List<MoveData> moveProcessing(String sequence, long gameId, String username) {
+	public List<MoveData> moveProcessing(String moveSequence, long gameId, String username) {
 		
-		   Game game = bcRepository.getGame(gameId);
-		    
-		   
-		    if (!bcRepository.isGameStarted(gameId)) {
-		        throw new GameNotStartedException(gameId);
-		    }
-		    
-		   
-		    if (bcRepository.isGameFinished(gameId)) {
-		        throw new GameAlreadyFinishedException(gameId);
-		    }
-		    
-		   
-		    List<String> gamers = bcRepository.getGameGamers(gameId);
-		    if (!gamers.contains(username)) {
-		        throw new GamerNotFoundException(username);
-		        
-		    }
-		    
-		    if (!bcRunner.checkGuess(sequence)) {
-		        throw new IncorrectMoveSequenceException(sequence);
-		    }
-		    
-		    
-		    
-		    String toBeGuessed = game.getSequence(); 
-		    MoveData moveData = bcRunner.moveProcessing(sequence, toBeGuessed); 
-		    MoveDto dto = new MoveDto(gameId, username, sequence, moveData.bulls(), moveData.cows());
-		    bcRepository.createGameGamerMove(dto);
-		    
-		  
-		    if (bcRunner.checkGameFinished(moveData)) {
-		        bcRepository.setIsFinished(gameId);
-		        bcRepository.setWinner(gameId, username);
-		    }
-		    
-		  
-		    return bcRepository.getAllGameGamerMoves(gameId, username);
+		if(!bcRunner.checkGuess(moveSequence)) {
+			throw new IncorrectMoveSequenceException(moveSequence, bcRunner.nDigits);
+		}
+		bcRepository.getGamer(username);//only for checking whether the gamer exists
+		if (!bcRepository.isGameStarted(gameId)) {
+			throw new GameNotStartedException(gameId);
+		}
+		if (bcRepository.isGameFinished(gameId)) {
+			throw new GameFinishedException(gameId);
 		}
 		
+		String toBeGuessedSequence = getSequence(gameId);
+		MoveData moveData = bcRunner.moveProcessing(moveSequence,
+				toBeGuessedSequence);
+		MoveDto moveDto = new MoveDto(gameId, username, moveSequence,
+				moveData.bulls(), moveData.cows());
+		bcRepository.createGameGamerMove(moveDto);
+		if(bcRunner.checkGameFinished(moveData)) {
+			finishGame(gameId, username);
+		}
+		return bcRepository.getAllGameGamerMoves(gameId, username);
+	}
+	private void finishGame(long gameId, String username) {
+		bcRepository.setIsFinished(gameId);
+		bcRepository.setWinner(gameId, username);
+		
+	}
 	@Override
 	/**
 	 * returns true if game is finished
@@ -151,9 +132,6 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 * GameNotFoundException
 	 */
 	public boolean gameOver(long gameId) {
-		if(bcRepository.getGame(gameId)==null) {
-			throw new GameNotFoundException(gameId);
-		}
 		
 		return bcRepository.isGameFinished(gameId);
 	}
@@ -164,15 +142,15 @@ public class BullsCowsServiceImpl implements BullsCowsService {
 	 * GameNotFoundException
 	 */
 	public List<String> getGameGamers(long gameId) {
-		if(bcRepository.getGame(gameId)==null) {
-			throw new GameNotFoundException(gameId);
-		}
-			List<String> result = bcRepository.getGameGamers(gameId);
-			
-		return result;
+		bcRepository.getGame(gameId);
+		return bcRepository.getGameGamers(gameId);
+	}
+	@Override
+	public String loginGamer(String username) {
+		 Gamer gamer = bcRepository.getGamer(username);
+		return gamer.getUsername();
 	}
 	/**
-	 * Only for testing
 	 * Implied that the test class resides at the same package (to access the method)
 	 * 
 	 * @param gameId

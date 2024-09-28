@@ -55,8 +55,10 @@ public class BullsCowsProtocol implements Protocol {
 		return getResponseOk(responseString );
 	}
 	Response registerGamer(String requestData) {
-		//TODO
-		String responseString = null;
+		JSONObject gamer = new JSONObject(requestData);
+		String username = gamer.getString("username");
+		LocalDate birthDate = LocalDate.parse(gamer.getString("birthDate"));
+		String responseString = String.format("user %s with birthdate %s registered successfully", username, birthDate);
 		return getResponseOk(responseString );
 	}
 	Response gamerJoinGame(String requestData) {
@@ -66,8 +68,8 @@ public class BullsCowsProtocol implements Protocol {
 		return getResponseOk(responseString );
 	}
 	Response getNotStartedGames(String requestData) {
-		//TODO
-		String responseString = null;
+		List<Long> notStartedGames = bcService.getNotStartedGames();
+		String responseString = resultsToJSON(notStartedGames);
 		return getResponseOk(responseString );
 	}
 	Response moveProcessing(String requestData) {
@@ -81,13 +83,16 @@ public class BullsCowsProtocol implements Protocol {
 		return getResponseOk(responseString );
 	}
 	Response gameOver(String requestData) {
-		//TODO
-		String responseString = null;
+		long gameId = Long.parseLong(requestData);
+		boolean isGameOver = bcService.gameOver(gameId);
+		String responseString = Boolean.toString(isGameOver);
+		
 		return getResponseOk(responseString );
 	}
 	Response getGameGamers(String requestData) {
-		//TODO
-		String responseString = null;
+		long gameId = Long.parseLong(requestData);
+		List<String> gamers = bcService.getGameGamers(gameId);
+		String responseString = resultsToJSON(gamers);
 		return getResponseOk(responseString );
 	}
 

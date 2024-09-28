@@ -11,9 +11,14 @@ public MoveData(JSONObject jsonObject) {
 	   this(jsonObject.getString(SEQUENCE_FIELD),
 			   jsonObject.getInt(BULLS_FILED), jsonObject.getInt(COWS_FIELD));
    }
+
 public String toString() {
-	//TODO - creating JSON string from object
-	return null;
+	JSONObject jsonObject = new JSONObject();
+	jsonObject.put(SEQUENCE_FIELD,  sequence);
+	jsonObject.put(BULLS_FILED, bulls);
+	jsonObject.put(COWS_FIELD, cows);
+	return jsonObject.toString();
+
 	
 }
 }

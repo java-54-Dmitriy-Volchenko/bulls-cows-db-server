@@ -11,7 +11,7 @@ import telran.net.games.service.*;
 
 public class BullsCowsServerAppl {
 
-	private static final int PORT = 5000;
+	private static final int PORT = 5003;
 	private static final int N_DIGITS = 0;
 
 	public static void main(String[] args) {

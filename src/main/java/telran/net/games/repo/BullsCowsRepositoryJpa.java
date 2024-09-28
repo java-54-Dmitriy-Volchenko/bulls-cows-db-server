@@ -14,7 +14,7 @@ import telran.net.games.entities.Move;
 import telran.net.games.exceptions.GameGamerAlreadyExistsException;
 import telran.net.games.exceptions.GameGamerNotFoundException;
 import telran.net.games.exceptions.GameNotFoundException;
-import telran.net.games.exceptions.GamerAlreadyExistsdException;
+import telran.net.games.exceptions.GamerAlreadyExistsException;
 import telran.net.games.exceptions.GamerNotFoundException;
 import telran.net.games.model.MoveData;
 import telran.net.games.model.MoveDto;
@@ -72,7 +72,7 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 			Gamer gamer = new Gamer(username, birthdate);
 			createObject(gamer);
 		} catch (Exception e) {
-			throw new GamerAlreadyExistsdException(username);
+			throw new GamerAlreadyExistsException(username);
 		}
 
 	}
@@ -180,5 +180,30 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 		GameGamer gameGamer = getGameGamer(gameId, username);
 		return gameGamer.isWinner();
 	}
+	@Override
+    public List<Long> getNotStartedGamesWithGamer(String username) {
+        TypedQuery<Long> query = em.createQuery(
+            "select g.id from Game g join g.gamers gg where g.date is null and gg.gamer.username = :username", Long.class);
+        return query.setParameter("username", username).getResultList();
+    }
 
+    @Override
+    public List<Long> getNotStartedGamesWithNoGamer(String username) {
+        TypedQuery<Long> query = em.createQuery(
+            "select g.id from Game g where g.date is null and not exists (select gg from GameGamer gg where gg.game.id = g.id and gg.gamer.username = :username)", Long.class);
+        return query.setParameter("username", username).getResultList();
+    }
+
+    @Override
+    public List<Long> getStartedGamesWithGamer(String username) {
+        TypedQuery<Long> query = em.createQuery(
+            "select g.id from Game g join g.gamers gg where g.date is not null and g.isFinished = false and gg.gamer.username = :username", Long.class);
+        return query.setParameter("username", username).getResultList();
+    }
+
+    @Override
+    public int getNumberOfDigits(long gameId) {
+        Game game = getGame(gameId);
+        return game.getSequence().length(); 
+    }
 }

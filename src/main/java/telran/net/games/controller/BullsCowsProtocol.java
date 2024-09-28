@@ -34,6 +34,10 @@ public class BullsCowsProtocol implements Protocol {
 			case "moveProcessing" -> moveProcessing(requestData);
 			case "gameOver" -> gameOver(requestData);
 			case "getGameGamers" -> getGameGamers(requestData);
+			case "getNotStartedGamesWithGamer" -> getNotStartedGamesWithGamer(requestData);
+            case "getNotStartedGamesWithNoGamer" -> getNotStartedGamesWithNoGamer(requestData);
+            case "getStartedGamesWithGamer" -> getStartedGamesWithGamer(requestData);
+            case "getNumberOfDigits" -> getNumberOfDigits(requestData);
 			default -> new Response(ResponseCode.WRONG_REQUEST_TYPE,
 					requestType);
 			};
@@ -95,6 +99,31 @@ public class BullsCowsProtocol implements Protocol {
 		String responseString = resultsToJSON(gamers);
 		return getResponseOk(responseString );
 	}
+	
+	private Response getNotStartedGamesWithGamer(String requestData) {
+	    List<Long> games = bcService.getNotStartedGamesWithGamer(requestData);
+	    String responseString = resultsToJSON(games);
+	    return getResponseOk(responseString);
+	}
+
+	private Response getNotStartedGamesWithNoGamer(String requestData) {
+	    List<Long> games = bcService.getNotStartedGamesWithNoGamer(requestData);
+	    String responseString = resultsToJSON(games);
+	    return getResponseOk(responseString);
+	}
+
+	private Response getStartedGamesWithGamer(String requestData) {
+	    List<Long> games = bcService.getStartedGamesWithGamer(requestData);
+	    String responseString = resultsToJSON(games);
+	    return getResponseOk(responseString);
+	}
+
+	private Response getNumberOfDigits(String requestData) {
+	    long gameId = Long.parseLong(requestData);
+	    int nDigits = bcService.getNumberOfDigits(gameId);
+	    String responseString = Integer.toString(nDigits);
+	    return getResponseOk(responseString);
+	}
 
 	private Response getResponseOk(String responseString) {
 		
@@ -105,4 +134,5 @@ private <T> String resultsToJSON(List<T> res) {
 		return res.stream().map(T::toString)
 				.collect(Collectors.joining(";"));
 	}
+
 }

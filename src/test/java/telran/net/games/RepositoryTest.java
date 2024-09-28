@@ -47,7 +47,7 @@ public class RepositoryTest {
 		repository.createNewGamer(gamerUsername, LocalDate.of(2000, 1, 1));
 		Gamer gamer = repository.getGamer(gamerUsername);
 		assertNotNull(gamer);
-		assertThrowsExactly(GamerAlreadyExistsdException.class, () ->
+		assertThrowsExactly(GamerAlreadyExistsException.class, () ->
 				repository.createNewGamer(gamerUsername, LocalDate.of(2000, 1, 1)));
 		
 	}

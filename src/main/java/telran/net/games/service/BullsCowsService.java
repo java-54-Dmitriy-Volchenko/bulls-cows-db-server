@@ -15,4 +15,8 @@ List<MoveData> moveProcessing(String sequence, long gameId, String username);
 boolean gameOver(long gameId);
 List<String> getGameGamers(long gameId);
 String loginGamer(String username); 
+List<Long> getNotStartedGamesWithGamer(String username);
+List<Long> getNotStartedGamesWithNoGamer(String username);
+List<Long> getStartedGamesWithGamer(String username);
+int getNumberOfDigits(long gameId);
 }

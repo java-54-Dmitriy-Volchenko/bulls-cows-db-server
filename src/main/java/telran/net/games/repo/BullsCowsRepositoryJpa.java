@@ -55,15 +55,18 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 	}
 
 	private <T> void createObject(T obj) {
-		EntityTransaction transaction = em.getTransaction();
-		try {
-			transaction.begin();
-			em.persist(obj);
-			transaction.commit();
-		} catch (Exception e) {
-			transaction.rollback();
-			throw e;
-		}
+		 EntityTransaction transaction = em.getTransaction();
+		    try {
+		        transaction.begin();
+		        System.out.println("Saving object: " + obj);
+		        em.persist(obj);
+		        transaction.commit();
+		        System.out.println("Transaction committed successfully.");
+		    } catch (Exception e) {
+		        System.err.println("Error during transaction: " + e.getMessage());
+		        transaction.rollback();
+		        throw e;
+		    }
 	}
 
 	@Override
@@ -182,23 +185,28 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 	}
 	@Override
     public List<Long> getNotStartedGamesWithGamer(String username) {
-        TypedQuery<Long> query = em.createQuery(
-            "select g.id from Game g join g.gamers gg where g.date is null and gg.gamer.username = :username", Long.class);
-        return query.setParameter("username", username).getResultList();
+		
+		 TypedQuery<Long> query = em.createQuery(
+			        "SELECT g.id FROM Game g JOIN GameGamer gg ON g.id = gg.game.id " +
+			        "WHERE g.dateTime IS NULL AND gg.gamer.username = :username", Long.class);
+			    return query.setParameter("username", username).getResultList();
     }
 
     @Override
     public List<Long> getNotStartedGamesWithNoGamer(String username) {
-        TypedQuery<Long> query = em.createQuery(
-            "select g.id from Game g where g.date is null and not exists (select gg from GameGamer gg where gg.game.id = g.id and gg.gamer.username = :username)", Long.class);
-        return query.setParameter("username", username).getResultList();
+    	TypedQuery<Long> query = em.createQuery(
+    	        "SELECT g.id FROM Game g WHERE g.dateTime IS NULL " +
+    	        "AND NOT EXISTS (SELECT gg FROM GameGamer gg WHERE gg.game.id = g.id AND gg.gamer.username = :username)", Long.class);
+    	    return query.setParameter("username", username).getResultList();
     }
 
     @Override
     public List<Long> getStartedGamesWithGamer(String username) {
-        TypedQuery<Long> query = em.createQuery(
-            "select g.id from Game g join g.gamers gg where g.date is not null and g.isFinished = false and gg.gamer.username = :username", Long.class);
-        return query.setParameter("username", username).getResultList();
+    	 TypedQuery<Long> query = em.createQuery(
+    		        "SELECT g.id FROM Game g JOIN GameGamer gg ON g.id = gg.game.id " +
+    		        "WHERE g.dateTime IS NOT NULL AND g.isFinished = false " +
+    		        "AND gg.gamer.username = :username", Long.class);
+    		    return query.setParameter("username", username).getResultList();
     }
 
     @Override

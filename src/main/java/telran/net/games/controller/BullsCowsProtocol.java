@@ -26,6 +26,7 @@ public class BullsCowsProtocol implements Protocol {
 		Response response;
 		try {
 			response = switch (requestType) {
+			case "loginGamer" -> loginGamer(requestData);
 			case "createGame" -> createGame(requestData);
 			case "startGame" -> startGame(requestData);
 			case "registerGamer" -> registerGamer(requestData);
@@ -47,6 +48,22 @@ public class BullsCowsProtocol implements Protocol {
 		}
 		return response;
 	}
+	
+	Response loginGamer(String requestData) {
+		
+	    String username = requestData;
+	    
+	 
+	    try {
+	        String loggedInUser = bcService.loginGamer(username);
+	        String responseString = String.format("User %s logged in successfully", loggedInUser);
+	        return getResponseOk(responseString);
+	    } catch (Exception e) {
+	        
+	        return new Response(ResponseCode.WRONG_REQUEST_DATA, e.getMessage());
+	    }
+	}
+
 	Response createGame(String requestData) {
 		long gameId = bcService.createGame();
 		String responseString = Long.toString(gameId);
@@ -59,11 +76,22 @@ public class BullsCowsProtocol implements Protocol {
 		return getResponseOk(responseString );
 	}
 	Response registerGamer(String requestData) {
-		JSONObject gamer = new JSONObject(requestData);
-		String username = gamer.getString("username");
-		LocalDate birthDate = LocalDate.parse(gamer.getString("birthDate"));
-		String responseString = String.format("user %s with birthdate %s registered successfully", username, birthDate);
-		return getResponseOk(responseString );
+			JSONObject gamer = new JSONObject(requestData);
+		    String username = gamer.getString("username");
+		    LocalDate birthDate = LocalDate.parse(gamer.getString("birthDate"));
+		    
+		    
+		    try {
+		        bcService.registerGamer(username, birthDate);
+		    } catch (Exception e) {
+		        return new Response(ResponseCode.WRONG_REQUEST_DATA, e.getMessage());
+		    }
+
+		 
+		    String responseString = String.format("User %s with birthdate %s registered successfully", username, birthDate);
+		    return getResponseOk(responseString);
+		
+
 	}
 	Response gamerJoinGame(String requestData) {
 		GameGamerDto gameGamer = new GameGamerDto(new JSONObject(requestData)) ;

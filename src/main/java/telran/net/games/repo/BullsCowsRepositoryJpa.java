@@ -194,15 +194,17 @@ public class BullsCowsRepositoryJpa implements BullsCowsRepository {
 
     @Override
     public List<Long> getNotStartedGamesWithNoGamer(String username) {
-    	TypedQuery<Long> query = em.createQuery(
+    	
+    	    TypedQuery<Long> query = em.createQuery(
     	        "SELECT g.id FROM Game g WHERE g.dateTime IS NULL " +
     	        "AND NOT EXISTS (SELECT gg FROM GameGamer gg WHERE gg.game.id = g.id AND gg.gamer.username = :username)", Long.class);
     	    return query.setParameter("username", username).getResultList();
-    }
+    	}
+    
 
     @Override
     public List<Long> getStartedGamesWithGamer(String username) {
-    	 TypedQuery<Long> query = em.createQuery(
+    	  TypedQuery<Long> query = em.createQuery(
     		        "SELECT g.id FROM Game g JOIN GameGamer gg ON g.id = gg.game.id " +
     		        "WHERE g.dateTime IS NOT NULL AND g.isFinished = false " +
     		        "AND gg.gamer.username = :username", Long.class);
